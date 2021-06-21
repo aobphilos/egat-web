@@ -1,10 +1,18 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import { useAppDispatch } from '../app/hooks';
 
-import Counter from '../features/counter/Counter';
+import Plant from '../features/plant/Plant';
+import { getPlantAsync } from '../features/plant/plantSlice';
 import styles from '../styles/Home.module.css';
 
 const IndexPage: NextPage = () => {
+  const dispatch = useAppDispatch();
+  /**
+   * Load Plant Data
+   */
+  dispatch(getPlantAsync());
+
   return (
     <div className={styles.container}>
       <Head>
@@ -13,7 +21,7 @@ const IndexPage: NextPage = () => {
       </Head>
       <header className={styles.header}>
         <img src="/logo-rain.png" className={styles.logo} alt="logo" />
-        <Counter />
+        <Plant />
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
