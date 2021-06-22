@@ -7,7 +7,6 @@ import { IPlant, PLANT_FUEL_TYPE } from '../../model/plant';
 
 import { FaSun, FaWater, FaWind, FaLeaf, FaRecycle, FaSubscript, FaVial } from 'react-icons/fa';
 
-import styles from './Plant.module.css';
 import { escapeRegExp } from '../../app/tools';
 
 function Plant() {
@@ -71,7 +70,7 @@ function Plant() {
 
   return (
     <div>
-      <div className={styles.row}>
+      <div>
         <AutoComplete
           field="ppInitial"
           disabled={plants.status !== 'idle'}
@@ -85,9 +84,6 @@ function Plant() {
           onChange={(e) => dispatch(setSelectedPlant(e.value))}
           placeholder="เลือกโรงงาน"
         />
-      </div>
-      <div>
-        <h3>{JSON.stringify(plants.selected, null, 2)}</h3>
       </div>
     </div>
   );

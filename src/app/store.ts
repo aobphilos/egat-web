@@ -2,10 +2,11 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 import counterReducer from '../features/counter/counterSlice';
 import plantReducer from '../features/plant/plantSlice';
+import layoutReducer from '../features/layout/layoutSlice';
 
 export function makeStore() {
   return configureStore({
-    reducer: { counter: counterReducer, plant: plantReducer },
+    reducer: { counter: counterReducer, plant: plantReducer, layout: layoutReducer },
   });
 }
 
