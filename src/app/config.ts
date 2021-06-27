@@ -7,6 +7,9 @@ const config = {
       tokenExpires: Number(process.env.EGAT_PPA_TOKEN_EXPIRES) || 4 * 60 * 60 * 1000, // the cache expires in 4 hours.
     },
   },
+  mapbox: {
+    apiKey: process.env.MAPBOX_API_KEY || '',
+  },
 };
 
 export { config };
