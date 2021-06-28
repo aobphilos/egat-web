@@ -1,21 +1,45 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Chart } from 'primereact/chart';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Calendar } from 'primereact/calendar';
 
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
+import { selectForecast, getForecastAsync } from '../../features/forecast/forecastSlice';
 
 import styles from './dashboard.module.css';
 
 const DashboardPage: NextPage = () => {
   const [activeIndex, setActiveIndex] = useState(1);
   const [currentPlant, setCurrentPlant] = useState<any>('overall');
+  const [date1, setDate1] = useState<Date | Date[] | undefined>(undefined);
+
+  const dispatch = useAppDispatch();
+  const forecast = useAppSelector(selectForecast);
 
   const router = useRouter();
   const { plant } = router.query;
+
+  useEffect(() => {
+    changeParamForecast();
+    return () => {};
+  }, [activeIndex]);
+
+  const changeParamForecast = () => {
+    let type = 'D';
+    if (activeIndex === 1) type = 'M';
+    else if (activeIndex === 2) type = 'Y';
+    const targetDate = date1 as Date;
+    const day = targetDate
+      ? targetDate.getFullYear() + '-' + targetDate.getMonth() + 1 + '-' + targetDate.getDate()
+      : '';
+    const params = { type, day, plant };
+
+    dispatch(getForecastAsync(params));
+    console.log(forecast);
+  };
 
   const basicData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -143,8 +167,6 @@ const DashboardPage: NextPage = () => {
     return date.day;
   };
 
-  const [date1, setDate1] = useState<Date | Date[] | undefined>(undefined);
-
   return (
     <div className={styles.container}>
       <div className="p-grid p-justify-center">
@@ -162,7 +184,7 @@ const DashboardPage: NextPage = () => {
           </div>
         </div>
         <div className="p-col-12 p-sm-12 p-md-10">
-          <TabView>
+          <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
             <TabPanel header="Day">
               <div className="card">
                 <h5>Basic</h5>
