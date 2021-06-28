@@ -2,12 +2,11 @@ import React, { useEffect } from 'react';
 
 import classNames from 'classnames';
 import { CSSTransition } from 'react-transition-group';
-import { Card } from 'primereact/card';
 
 import menuItems from '../layout/menu-items';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { setActiveSidebar, selectLayout } from '../layout/layoutSlice';
-import { getPlantAsync } from '../plant/plantSlice';
+import { getFilteredPlantAsync } from '../plant/plantSlice';
 
 import { AppTopBar } from '../layout/AppTopBar';
 import { AppFooter } from '../layout/AppFooter';
@@ -18,7 +17,7 @@ const Wrapper = ({ children }: any) => {
   /**
    * Load Plant Data
    */
-  dispatch(getPlantAsync());
+  dispatch(getFilteredPlantAsync());
 
   const layout = useAppSelector(selectLayout);
 
@@ -54,15 +53,12 @@ const Wrapper = ({ children }: any) => {
   };
 
   const onWrapperClick = (event: any) => {
-    console.log('call wrapper click');
     if (layout.isActiveSidebar) {
       dispatch(setActiveSidebar(false));
     }
   };
 
   const onToggleMenu = (event: any) => {
-    console.log('call toggle click');
-
     dispatch(setActiveSidebar(!layout.isActiveSidebar));
     event.preventDefault();
   };
@@ -78,7 +74,6 @@ const Wrapper = ({ children }: any) => {
   };
 
   const sidebarClassName = classNames('layout-sidebar', { 'layout-sidebar-dark': true });
-  const cardHarder = <img alt="Card" src="/logo-rain.png" />;
 
   return (
     <div className={wrapperClass} onClick={onWrapperClick}>

@@ -39,24 +39,26 @@ async function fetchPlant(token: string): Promise<IPlant[]> {
   });
 
   const plants: IPlant[] = response.data || [];
-  currentPlants.push(...plants);
 
-  return currentPlants;
+  return plants;
 }
 
-const plantHandler: NextApiHandler = async (request, response) => {
+export async function getCurrentPlants() {
   if (currentPlants.length === 0) {
     const { egat } = config;
     const token = await fetchToken();
     const plants = await fetchPlant(token);
+    currentPlants.splice(0, currentPlants.length, ...plants);
     setTimeout(() => {
       console.log('clear plants data');
       currentPlants.splice(0);
     }, egat.ppa.tokenExpires);
-    response.json(plants);
-  } else {
-    response.json(currentPlants);
   }
+  return currentPlants;
+}
+
+const plantHandler: NextApiHandler = async (request, response) => {
+  response.json(await getCurrentPlants());
 };
 
 export default plantHandler;

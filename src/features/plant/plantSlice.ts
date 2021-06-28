@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import type { AppState } from '../../app/store';
-import { IPlant } from '../../model/plant';
+import { IPlant, PLANT_FUEL_TYPE } from '../../model/plant';
 import { fetchPlant } from './plantAPI';
 
 export interface IPlantState {
@@ -19,6 +19,14 @@ const initialState: IPlantState = {
 export const getPlantAsync = createAsyncThunk('plant/fetchPlant', async () => {
   const response = await fetchPlant();
   // The value we return becomes the `fulfilled` action payload
+
+  return response.data;
+});
+
+export const getFilteredPlantAsync = createAsyncThunk('plant/fetchFilteredPlant', async () => {
+  const response = await fetchPlant([PLANT_FUEL_TYPE.WIND, PLANT_FUEL_TYPE.SOLAR]);
+  // The value we return becomes the `fulfilled` action payload
+
   return response.data;
 });
 
@@ -42,6 +50,13 @@ export const plantSlice = createSlice({
       .addCase(getPlantAsync.fulfilled, (state, action) => {
         state.status = 'idle';
         state.data = action.payload;
+      })
+      .addCase(getFilteredPlantAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(getFilteredPlantAsync.fulfilled, (state, action) => {
+        state.status = 'idle';
+        state.data = action.payload;
       });
   },
 });
@@ -52,5 +67,8 @@ export const { setSelectedPlant } = plantSlice.actions;
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectPlants = (state: AppState) => state.plant;
+export const selectPlots = (state: AppState) => {
+  return state.plant.data?.map((e) => [Number(e.ppLongtitude), Number(e.ppLatitude)]);
+};
 
 export default plantSlice.reducer;
