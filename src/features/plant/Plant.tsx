@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { AutoComplete } from 'primereact/autocomplete';
 
@@ -68,6 +69,16 @@ function Plant() {
     }, 250);
   };
 
+  const router = useRouter();
+
+  const onAutocompleteChange = (event: any) => {
+    event.preventDefault();
+    if (event.value) {
+      dispatch(setSelectedPlant(event.value));
+      router.push(`/dashboard/${event.value['ppInitial']}`);
+    }
+  };
+
   return (
     <div>
       <div>
@@ -81,7 +92,7 @@ function Plant() {
           scrollHeight={'226px'}
           forceSelection
           itemTemplate={itemTemplate}
-          onChange={(e) => dispatch(setSelectedPlant(e.value))}
+          onChange={onAutocompleteChange}
           placeholder="เลือกโรงงาน"
         />
       </div>

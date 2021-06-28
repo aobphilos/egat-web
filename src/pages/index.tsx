@@ -1,13 +1,17 @@
 import type { NextPage } from 'next';
-
-import { useAppSelector } from '../app/hooks';
-import { selectPlants } from '../features/plant/plantSlice';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 const IndexPage: NextPage = () => {
-  const plants = useAppSelector(selectPlants);
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push('/dashboard');
+  }, [{}]);
+
   return (
-    <div>
-      <h3>{JSON.stringify(plants.selected, null, 2)}</h3>
+    <div style={{ position: 'absolute', top: '48%', left: '45%' }}>
+      <h2>Loading...</h2>
     </div>
   );
 };

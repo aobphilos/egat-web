@@ -1,7 +1,7 @@
 import { IPlant, PLANT_FUEL_TYPE } from '../../model/plant';
 
 export async function fetchPlant(filtered: PLANT_FUEL_TYPE[] = []): Promise<{ data: IPlant[] }> {
-  const apiPath = `api/plants`;
+  const apiPath = `/api/plants`;
   const response = await fetch(apiPath, {
     method: 'GET',
     headers: {
