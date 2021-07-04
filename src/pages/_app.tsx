@@ -13,8 +13,8 @@ import 'primeflex/primeflex.css';
 
 import '../layout/flags/flags.css';
 import '../layout/layout.scss';
-import '../styles/globals.css';
-import '../styles/Wrapper.scss';
+// import '../styles/globals.css';
+// import '../styles/Wrapper.scss';
 
 function MyApp({ Component, pageProps }: AppProps) {
   PrimeReact.ripple = true;

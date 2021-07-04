@@ -6,7 +6,6 @@ import { CSSTransition } from 'react-transition-group';
 import menuItems from '../layout/menu-items';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { setActiveSidebar, selectLayout } from '../layout/layoutSlice';
-import { getFilteredPlantAsync } from '../plant/plantSlice';
 
 import { AppTopBar } from '../layout/AppTopBar';
 import { AppFooter } from '../layout/AppFooter';
@@ -14,10 +13,6 @@ import { AppMenu } from '../layout/AppMenu';
 
 const Wrapper = ({ children }: any) => {
   const dispatch = useAppDispatch();
-  /**
-   * Load Plant Data
-   */
-  dispatch(getFilteredPlantAsync());
 
   const layout = useAppSelector(selectLayout);
 

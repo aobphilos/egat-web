@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AutoComplete } from 'primereact/autocomplete';
 
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { selectPlants, setSelectedPlant } from './plantSlice';
+import { selectPlants, setSelectedPlant, getFilteredPlantAsync } from './plantSlice';
 import { IPlant, PLANT_FUEL_TYPE } from '../../model/plant';
 
 import { FaSun, FaWater, FaWind, FaLeaf, FaRecycle, FaSubscript, FaVial } from 'react-icons/fa';
@@ -13,8 +13,23 @@ import { escapeRegExp } from '../../app/tools';
 function Plant() {
   const dispatch = useAppDispatch();
 
+  const [plantValue, setPlantValue] = useState<string>('');
+
   const plants = useAppSelector(selectPlants);
+
   const [filteredPlants, setFilteredPlants] = useState<IPlant[]>(plants.data);
+
+  useEffect(() => {
+    if (!plants.data || !Array.isArray(plants.data) || plants.data.length === 0) {
+      console.log('---- LOAD PLANT LIST----');
+      /**
+       * Load Plant Data
+       */
+      dispatch(getFilteredPlantAsync());
+    }
+
+    return () => {};
+  }, [0]);
 
   const getFuelTypeIcon = (name: string | undefined) => {
     let icon = <FaVial />;
@@ -73,9 +88,13 @@ function Plant() {
 
   const onAutocompleteChange = (event: any) => {
     event.preventDefault();
-    if (event.value) {
-      dispatch(setSelectedPlant(event.value));
-      router.push(`/dashboard/${event.value['ppInitial']}`);
+    setPlantValue(event.value);
+
+    if (typeof event.value === 'object') {
+      const { ppInitial = 'overall' } = event.value || {};
+      dispatch(setSelectedPlant(ppInitial));
+      console.log('redirect: ', ppInitial);
+      router.push(`/dashboard/${ppInitial}`);
     }
   };
 
@@ -85,7 +104,7 @@ function Plant() {
         <AutoComplete
           field="ppInitial"
           disabled={plants.status !== 'idle'}
-          value={plants.selected}
+          value={plantValue}
           suggestions={filteredPlants}
           completeMethod={searchCountry}
           dropdown
