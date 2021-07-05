@@ -8,10 +8,14 @@ const config = {
     },
     forecast: {
       url: process.env.EGAT_FORECAST_URL || '',
+      totalPowersExpires: Number(process.env.EGAT_FORECAST_POWERS_EXPIRES) || 24 * 60 * 60 * 1000, // the cache expires in 24 hours.
     },
   },
   mapbox: {
     apiKey: process.env.MAPBOX_API_KEY || '',
+  },
+  weather: {
+    apiKey: process.env.WEATHER_API_KEY || '',
   },
 };
 

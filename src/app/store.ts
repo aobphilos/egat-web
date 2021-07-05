@@ -4,10 +4,17 @@ import counterReducer from '../features/counter/counterSlice';
 import plantReducer from '../features/plant/plantSlice';
 import layoutReducer from '../features/layout/layoutSlice';
 import forecastReducer from '../features/forecast/forecastSlice';
+import forecastSummaryReducer from '../features/forecast/forecastSummarySlice';
 
 export function makeStore() {
   return configureStore({
-    reducer: { counter: counterReducer, plant: plantReducer, layout: layoutReducer, forecast: forecastReducer },
+    reducer: {
+      counter: counterReducer,
+      plant: plantReducer,
+      layout: layoutReducer,
+      forecast: forecastReducer,
+      forecastSummary: forecastSummaryReducer,
+    },
   });
 }
 

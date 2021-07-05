@@ -1,4 +1,5 @@
 export default [
-  { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' },
+  { label: 'Overview', icon: 'pi pi-fw pi-home', to: '/' },
+  { label: 'Dashboard', icon: 'pi pi-fw pi-th-large', to: '/dashboard' },
   { label: 'Location', icon: 'pi pi-fw pi-globe', to: '/location' },
 ];

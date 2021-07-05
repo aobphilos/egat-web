@@ -2,6 +2,8 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
+import { ProgressSpinner } from 'primereact/progressspinner';
+
 const DashboardPage: NextPage = () => {
   const router = useRouter();
 
@@ -11,7 +13,7 @@ const DashboardPage: NextPage = () => {
 
   return (
     <div style={{ position: 'absolute', top: '48%', left: '45%' }}>
-      <h2>Loading...</h2>
+      <ProgressSpinner />
     </div>
   );
 };

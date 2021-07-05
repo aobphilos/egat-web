@@ -10,7 +10,7 @@ interface IForecastParams {
   dayEnd: string;
 }
 
-async function fetchData({ type, day, plant, dayEnd }: IForecastParams): Promise<IForecast[]> {
+export async function fetchData({ type, day, plant, dayEnd }: IForecastParams): Promise<IForecast[]> {
   const { egat } = config;
   const apiPath = `${egat.forecast.url}/forecast`;
   const params = {
@@ -20,7 +20,7 @@ async function fetchData({ type, day, plant, dayEnd }: IForecastParams): Promise
     f_day_end: dayEnd,
   };
 
-  console.log('[server-call][forecast] - API ', params);
+  // console.log('[server-call][forecast] - API ', params);
 
   const response = await axios(apiPath, {
     method: 'GET',
@@ -34,13 +34,13 @@ async function fetchData({ type, day, plant, dayEnd }: IForecastParams): Promise
   });
   const data: IForecast[] = (response.data && response.data.dataList) || [];
 
-  console.log('[server-call][forecast] - API', data);
+  // console.log('[server-call][forecast] - API - completed');
   return data;
 }
 
-const plantHandler: NextApiHandler = async (request, response) => {
+const forecastHandler: NextApiHandler = async (request, response) => {
   const { type, day, plant, dayEnd }: any = request.query;
   response.json(await fetchData({ type, day, plant, dayEnd }));
 };
 
-export default plantHandler;
+export default forecastHandler;

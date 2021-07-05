@@ -44,6 +44,7 @@ async function fetchPlant(token: string): Promise<IPlant[]> {
 }
 
 export async function getCurrentPlants() {
+  console.log('currentPlants: ', currentPlants.length);
   if (currentPlants.length === 0) {
     const { egat } = config;
     const token = await fetchToken();
