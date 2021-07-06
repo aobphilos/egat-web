@@ -62,6 +62,8 @@ const DashboardPage: NextPage = () => {
 
   const [dateFrom, setDateFrom] = useState<Date | Date[] | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | Date[] | undefined>(undefined);
+  const [disableDateTo, setDisableDateTo] = useState(true);
+  const [minDate, setMinDate] = useState<Date | undefined>(undefined);
 
   const [dayData, setDayData] = useState<any>(initCharData);
   const [monthData, setMonthData] = useState<any>(initCharData);
@@ -128,6 +130,30 @@ const DashboardPage: NextPage = () => {
     dispatch(getForecastAsync(params));
   };
 
+  const changeDateFromHandler = (event: any) => {
+    setDateFrom(event.value);
+    setDisableDateTo(!event.value);
+    setMinDate(event.value);
+
+    if (!event.value) {
+      setDateTo(undefined);
+    } else {
+      const startDate = event.value as Date;
+      const endDate = dateTo as Date;
+
+      if (startDate && endDate) {
+        console.log('Date Diff: ', endDate.getTime() - startDate.getTime());
+        if (endDate.getTime() - startDate.getTime() <= 0) {
+          setDateTo(event.value);
+        }
+      }
+    }
+  };
+
+  const changeDateToHandler = (event: any) => {
+    setDateTo(event.value);
+  };
+
   const getCurrentType = () => {
     let type = 'D';
     if (activeIndex === 1) type = 'M';
@@ -171,7 +197,7 @@ const DashboardPage: NextPage = () => {
                   <Calendar
                     id="dateFrom"
                     value={dateFrom}
-                    onChange={(e) => setDateFrom(e.value)}
+                    onChange={changeDateFromHandler}
                     showIcon={true}
                     className={styles.calendar}
                     dateFormat="dd/mm/yy"
@@ -182,10 +208,12 @@ const DashboardPage: NextPage = () => {
                   <Calendar
                     id="dateTo"
                     value={dateTo}
-                    onChange={(e) => setDateTo(e.value)}
+                    onChange={changeDateToHandler}
                     showIcon={true}
                     className={styles.calendar}
                     dateFormat="dd/mm/yy"
+                    minDate={minDate}
+                    disabled={disableDateTo}
                   />
                 </div>
               </div>
