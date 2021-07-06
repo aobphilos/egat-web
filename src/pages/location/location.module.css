@@ -8,6 +8,10 @@
   font-size: large;
 }
 
+.iconBG:hover {
+  cursor: pointer;
+}
+
 .popup {
   width: 20rem;
 }
