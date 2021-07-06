@@ -17,6 +17,10 @@ const config = {
   weather: {
     apiKey: process.env.WEATHER_API_KEY || '',
   },
+  supabase: {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+  },
 };
 
 export { config };

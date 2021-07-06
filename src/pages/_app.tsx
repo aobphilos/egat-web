@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { AppProps } from 'next/app';
 import PrimeReact from 'primereact/api';
 import { Provider } from 'react-redux';
+import { Session } from '@supabase/supabase-js';
+import { supabase } from '../utils/supabaseClient';
+import Auth from '../features/auth';
 
 import store from '../app/store';
 import Wrapper from '../features/layout/Wrapper';
@@ -16,12 +19,23 @@ import '../layout/layout.scss';
 
 function MyApp({ Component, pageProps }: AppProps) {
   PrimeReact.ripple = true;
-
+  const [session, setSession] = useState<Session | null>(null);
+  useEffect(() => {
+    setSession(supabase.auth.session());
+    supabase.auth.update({ password: 'P@ssw0rd' });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
   return (
     <Provider store={store}>
-      <Wrapper>
-        <Component {...pageProps} />
-      </Wrapper>
+      {!session ? (
+        <Auth />
+      ) : (
+        <Wrapper>
+          <Component {...pageProps} />
+        </Wrapper>
+      )}
     </Provider>
   );
 }
