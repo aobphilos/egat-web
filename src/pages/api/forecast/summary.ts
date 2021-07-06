@@ -15,8 +15,6 @@ let totalGeneratedPowers: ITotalGeneratedPowers = {
 };
 
 export async function summaryPowers(sunList: string[] = [], windList: string[] = []) {
-  console.log('Call -> ', totalGeneratedPowers.status);
-
   if (totalGeneratedPowers.status !== GENERATED_POWER_STATUS.VALID) {
     console.log('[server-call][forecast][generate-power]: ', 'sun -', sunList.length, 'wind -', windList.length);
     const { egat } = config;
@@ -25,20 +23,32 @@ export async function summaryPowers(sunList: string[] = [], windList: string[] =
       day: DateTime.utc().setZone('Asia/Bangkok').toFormat('yyyy-LL-dd'),
     };
 
-    const getPower = async (plant: string) => {
+    const sunBlankList: string[] = [];
+    const windBlankList: string[] = [];
+
+    const getPower = async (plant: string, blankList: string[]) => {
       const params: any = { ...options, plant };
       const data = await fetchData(params);
+      if (data.length === 0) {
+        blankList.push(plant);
+      }
       return data.map((e) => e.predicted).reduce((k, v) => k + v, 0);
     };
 
-    const sunPowers = await Promise.map(sunList, getPower, { concurrency: 8 });
-    const windPowers = await Promise.map(windList, getPower, { concurrency: 8 });
+    const sunPowers = await Promise.map(sunList, (plant) => getPower(plant, sunBlankList), { concurrency: 8 });
+    const windPowers = await Promise.map(windList, (plant) => getPower(plant, windBlankList), { concurrency: 8 });
 
-    Object.assign(totalGeneratedPowers, {
-      totalSunPowers: sunPowers.reduce((k, v) => k + v, 0),
-      totalWindPowers: windPowers.reduce((k, v) => k + v, 0),
-      status: GENERATED_POWER_STATUS.VALID,
-    });
+    const allSunPowers = sunPowers.reduce((k, v) => k + v, 0);
+    const allWindPowers = windPowers.reduce((k, v) => k + v, 0);
+    const sunBase = sunList.length - sunBlankList.length;
+    const windBase = windList.length - windBlankList.length;
+    const totalSunPowers = sunBase > 0 ? allSunPowers / sunBase : 0;
+    const totalWindPowers = windBase > 0 ? allWindPowers / windBase : 0;
+
+    console.log('Blank Data (Sun): ', sunBlankList);
+    console.log('Blank Data (Wind): ', windBlankList);
+
+    Object.assign(totalGeneratedPowers, { totalSunPowers, totalWindPowers, status: GENERATED_POWER_STATUS.VALID });
 
     console.log('[server-call][forecast][generate-power]: completed ');
 
