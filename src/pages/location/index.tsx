@@ -1,5 +1,6 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 
 import ReactMapboxGl, { Popup, Marker } from 'react-mapbox-gl';
@@ -24,6 +25,8 @@ interface ILocationParams {
 const LocationPage: NextPage<ILocationParams> = ({ token, plants }) => {
   const dispatch = useAppDispatch();
 
+  const router = useRouter();
+
   const defaultProps: any = {
     center: [100.5951717, 14.9965211],
     zoom: [8],
@@ -43,6 +46,9 @@ const LocationPage: NextPage<ILocationParams> = ({ token, plants }) => {
     popupVisible = true;
 
     dispatch(setSelectedPlant(plant));
+
+    console.log('redirect: ', plant.ppInitial);
+    router.push(`/dashboard/${plant.ppInitial}`);
   };
 
   const onMapClick: any = (map: any, event: any) => {

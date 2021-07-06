@@ -189,10 +189,13 @@ const DashboardPage: NextPage = () => {
     <div className={styles.container}>
       <div className="p-grid p-justify-center">
         <div className="p-col-12 p-sm-12 p-md-11 p-lg-10">
-          <div className="p-grid p-fluid p-justify-center">
-            <div className="p-col-11 p-sm-6 p-md-6 p-lg-5 p-xl-4">
+          <div className="p-grid p-fluid p-justify-between">
+            <div className="p-col-3 p-sm-2 p-pt-5 p-mx-auto p-mx-sm-0">
+              <h4 style={{ color: '#42a5f5', fontWeight: 'bolder' }}>{plant}</h4>
+            </div>
+            <div className="p-col-11 p-sm-7 p-md-6 p-lg-5 p-xl-4">
               <div className="p-grid ">
-                <div className="p-field p-col-6">
+                <div className="p-col-6">
                   <label htmlFor="dateFrom">วันที่เริ่มต้น</label>
                   <Calendar
                     id="dateFrom"
@@ -203,7 +206,7 @@ const DashboardPage: NextPage = () => {
                     dateFormat="dd/mm/yy"
                   />
                 </div>
-                <div className="p-field p-col-6">
+                <div className="p-col-6">
                   <label htmlFor="dateTo">วันที่สิ้นสุด</label>
                   <Calendar
                     id="dateTo"
@@ -218,6 +221,7 @@ const DashboardPage: NextPage = () => {
                 </div>
               </div>
             </div>
+            <div className="p-col-1 "></div>
           </div>
         </div>
         <div className="p-col-12 p-sm-12 p-md-11 p-lg-10">
