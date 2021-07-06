@@ -13,12 +13,17 @@ import { FaSun, FaWind } from 'react-icons/fa';
 import styles from './location.module.css';
 import { getCurrentPlants } from '../api/plants';
 
+import { useAppDispatch } from '../../app/hooks';
+import { setSelectedPlant } from '../../features/plant/plantSlice';
+
 interface ILocationParams {
   token: string;
   plants: IPlant[];
 }
 
 const LocationPage: NextPage<ILocationParams> = ({ token, plants }) => {
+  const dispatch = useAppDispatch();
+
   const defaultProps: any = {
     center: [100.5951717, 14.9965211],
     zoom: [8],
@@ -36,6 +41,8 @@ const LocationPage: NextPage<ILocationParams> = ({ token, plants }) => {
     // setPopupVisible(true);
     popupLocation = coordinates;
     popupVisible = true;
+
+    dispatch(setSelectedPlant(plant));
   };
 
   const onMapClick: any = (map: any, event: any) => {

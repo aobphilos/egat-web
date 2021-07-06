@@ -83,13 +83,13 @@ const DashboardPage: NextPage = () => {
     }
 
     return () => {};
-  }, [activeIndex, dateFrom, dateTo, selectPlant.selected, plant]);
+  }, [activeIndex, dateFrom, dateTo, selectPlant.selected]);
 
   useEffect(() => {
     setChartData();
 
     return () => {};
-  }, [forecast.data]);
+  }, [forecast]);
 
   const setChartData = () => {
     const updatedData = {
