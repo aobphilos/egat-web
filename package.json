@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.0",
+    "@supabase/supabase-js": "^1.18.0",
     "axios": "^0.21.1",
     "bluebird": "^3.7.2",
     "chart.js": "^3.4.0",

@@ -13,10 +13,10 @@ export const AppTopBar = ({ onToggleMenu }: any) => {
           <Plant />
         </span>
 
-        <button type="button" className="p-link">
+        {/* <button type="button" className="p-link">
           <span className="layout-topbar-item-text">User</span>
           <span className="layout-topbar-icon pi pi-user" />
-        </button>
+        </button> */}
       </div>
     </div>
   );
