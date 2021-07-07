@@ -1,16 +1,20 @@
 import type { NextApiHandler } from 'next';
 import { config } from '../../../app/config';
 
-import { GENERATED_POWER_STATUS, ITotalGeneratedPowers } from '../../../model/forecast';
+import { GENERATED_POWER_STATUS, ITotalGeneratedPowers, IGeneratedPowers } from '../../../model/forecast';
 import { fetchData } from '.';
 
 import { DateTime } from 'luxon';
 import { Promise } from 'bluebird';
 
+let generatedPowers: IGeneratedPowers = {
+  sunPowers: new Map<string, number>(),
+  windPowers: new Map<string, number>(),
+};
+
 let totalGeneratedPowers: ITotalGeneratedPowers = {
   totalSunPowers: 0,
   totalWindPowers: 0,
-
   status: GENERATED_POWER_STATUS.NONE,
 };
 
@@ -26,17 +30,26 @@ export async function summaryPowers(sunList: string[] = [], windList: string[] =
     const sunBlankList: string[] = [];
     const windBlankList: string[] = [];
 
-    const getPower = async (plant: string, blankList: string[]) => {
+    const getPower = async (plant: string, blankList: string[], generateItem: Map<string, number>) => {
       const params: any = { ...options, plant };
       const data = await fetchData(params);
       if (data.length === 0) {
         blankList.push(plant);
       }
-      return data.map((e) => e.predicted).reduce((k, v) => k + v, 0);
+      const powers = data.map((e) => e.predicted).reduce((k, v) => k + v, 0);
+      generateItem.set(plant, powers);
+      return powers;
     };
 
-    const sunPowers = await Promise.map(sunList, (plant) => getPower(plant, sunBlankList), { concurrency: 8 });
-    const windPowers = await Promise.map(windList, (plant) => getPower(plant, windBlankList), { concurrency: 8 });
+    const sunPowers = await Promise.map(sunList, (plant) => getPower(plant, sunBlankList, generatedPowers.sunPowers), {
+      concurrency: 8,
+    });
+
+    const windPowers = await Promise.map(
+      windList,
+      (plant) => getPower(plant, windBlankList, generatedPowers.windPowers),
+      { concurrency: 8 }
+    );
 
     const allSunPowers = sunPowers.reduce((k, v) => k + v, 0);
     const allWindPowers = windPowers.reduce((k, v) => k + v, 0);
@@ -57,7 +70,7 @@ export async function summaryPowers(sunList: string[] = [], windList: string[] =
       Object.assign(totalGeneratedPowers, { status: GENERATED_POWER_STATUS.EXPIRED });
     }, egat.forecast.totalPowersExpires);
   }
-  return totalGeneratedPowers;
+  return { totalGeneratedPowers, generatedPowers };
 }
 
 const summaryForecastHandler: NextApiHandler = async (request, response) => {
