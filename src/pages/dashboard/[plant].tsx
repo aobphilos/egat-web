@@ -22,7 +22,7 @@ const initCharData = {
       data: [],
       fill: false,
       borderColor: '#42A5F5',
-      tension: 0.5,
+      tension: 0.4,
     },
   ],
 };
@@ -69,15 +69,13 @@ const DashboardPage: NextPage = () => {
   const [monthData, setMonthData] = useState<any>(initCharData);
   const [yearData, setYearData] = useState<any>(initCharData);
 
+  const router = useRouter();
+  const useQuery = () => router.query;
+  const { plant } = useQuery();
+
   const dispatch = useAppDispatch();
   const forecast = useAppSelector(selectForecast);
   const selectPlant = useAppSelector(selectPlants);
-
-  const router = useRouter();
-
-  const useQuery = () => router.query;
-
-  const { plant } = useQuery();
 
   useEffect(() => {
     if (plant) {
@@ -99,9 +97,27 @@ const DashboardPage: NextPage = () => {
       datasets: [
         {
           label: 'Energy Forecast (kW)',
-          data: getPredictions(),
+          data: getForecastData('predicted'),
           fill: false,
           borderColor: '#42A5F5',
+          tension: 0.5,
+        },
+        {
+          label: 'Error',
+          data: getForecastData('diff'),
+          fill: true,
+          borderColor: '#ff5638',
+          borderDash: [5, 5],
+          backgroundColor: 'rgba(255, 86, 56, 0.4)',
+          tension: 0.5,
+        },
+        {
+          label: 'Actual',
+          data: getForecastData('value'),
+          fill: true,
+          borderColor: '#ffd271',
+          borderDash: [5, 5],
+          backgroundColor: 'rgba(255, 192, 56, 0.3)',
           tension: 0.5,
         },
       ],
@@ -161,8 +177,8 @@ const DashboardPage: NextPage = () => {
     return type;
   };
 
-  const getPredictions = () => {
-    const result = (forecast.data || []).map((f) => f.predicted);
+  const getForecastData = (type: string) => {
+    const result = (forecast.data || []).map((f: any) => f[type]);
     return result;
   };
 
@@ -229,19 +245,19 @@ const DashboardPage: NextPage = () => {
             <TabPanel header="Day">
               <div className="card">
                 <h5>Basic</h5>
-                <Chart type="line" data={dayData} options={initChartOptions} style={{ height: '350px' }} />
+                <Chart type="line" data={dayData} options={initChartOptions} style={{ height: '50vh' }} />
               </div>
             </TabPanel>
             <TabPanel header="Month">
               <div className="card">
                 <h5>Multi Axis</h5>
-                <Chart type="line" data={monthData} options={initChartOptions} style={{ height: '350px' }} />
+                <Chart type="line" data={monthData} options={initChartOptions} style={{ height: '50vh' }} />
               </div>
             </TabPanel>
             <TabPanel header="Year">
               <div className="card">
                 <h5>Multi Axis</h5>
-                <Chart type="line" data={yearData} options={initChartOptions} style={{ height: '350px' }} />
+                <Chart type="line" data={yearData} options={initChartOptions} style={{ height: '50vh' }} />
               </div>
             </TabPanel>
           </TabView>

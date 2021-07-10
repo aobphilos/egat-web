@@ -1,5 +1,7 @@
 .container {
   padding: 6rem 2rem 2rem 2rem;
+  background: linear-gradient(rgba(116, 246, 255, 0.55), rgba(135, 173, 255, 0.55));
+  min-height: 100vh;
 }
 
 .container .p-col-10.p-fluid > div {
@@ -49,4 +51,8 @@
 .spinner {
   width: 24px;
   height: 30px;
+}
+
+.parallax_bg {
+  background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5));
 }

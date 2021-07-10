@@ -34,7 +34,7 @@ export async function fetchData({ type, day, plant, dayEnd }: IForecastParams): 
   });
   const data: IForecast[] = (response.data && response.data.dataList) || [];
 
-  // console.log('[server-call][forecast] - API - completed');
+  // console.log('[server-call][forecast] - API - completed', data);
   return data;
 }
 

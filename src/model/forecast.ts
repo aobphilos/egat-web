@@ -1,6 +1,8 @@
 export interface IForecast {
   predicted: number;
   timeStamp: string;
+  diff: number;
+  value: number;
 }
 
 export enum GENERATED_POWER_STATUS {
