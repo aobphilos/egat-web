@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/aobphilos/egat-web/compare/v1.0.0...v1.0.1) (2021-07-24)
+
+
+### Features
+
+* 🎸 (dashboard): addded powers generates list on table ([0d1240a](https://github.com/aobphilos/egat-web/commit/0d1240a7465d3acac9f8830a606d8f3506bd4a8d))
+* 🎸 (dashboard): added error and acctual data in graph ([ffbb4c6](https://github.com/aobphilos/egat-web/commit/ffbb4c69f55d6d9d23aa7d0c5bd0759c9fa856ff))
+* 🎸 (map-location): map can navigate to Dashboard page ([97588e0](https://github.com/aobphilos/egat-web/commit/97588e04f3d68e988c179d7e155077849b5b692c))
+* 🎸 (ui-theme): change theme to yellow base ([6980311](https://github.com/aobphilos/egat-web/commit/69803118aaacbd71021b135bb8f970f8257ae1d2))
+
+
+### Bug Fixes
+
+* 🐛 (calendar): apply min-date for date-to ([342b9c8](https://github.com/aobphilos/egat-web/commit/342b9c8667562d664c12fc31d8a25aba58349664))
+* 🐛 (marker): fixed wrong symbol on location map ([ec6cc82](https://github.com/aobphilos/egat-web/commit/ec6cc82b2cd138d2faade5a7e921d23200e43408))
+* 🐛 (plant-list): reduce double API call at same time ([25260ca](https://github.com/aobphilos/egat-web/commit/25260ca90f38274b7969adc973b2cdf7225ef9d0))
+* 🐛 divide total power by number of plant ([c983099](https://github.com/aobphilos/egat-web/commit/c983099848fbaf9295e3dd0d6ed371342ccb70a5))
+
 ## 1.0.0 (2021-07-6)
 
 ### Features
