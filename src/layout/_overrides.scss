@@ -1,1 +1,28 @@
 //Suggested location to add your overrides so that migration would be easy by just updating the SASS folder in the future
+
+.p-tabview {
+  .p-tabview-nav {
+    li {
+      width: 33.33%;
+      &.p-highlight {
+        .p-tabview-nav-link {
+          color: $menuitemColor;
+          background-color: $primaryColor;
+        }
+      }
+      a {
+        .p-tabview-title {
+          margin: 0 auto;
+        }
+      }
+    }
+  }
+}
+
+.p-button {
+  background-color: $primaryColor;
+  border-color: $primaryColor;
+  &:hover {
+    background-color: $primaryHoverColor !important;
+  }
+}

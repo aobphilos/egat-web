@@ -36,7 +36,7 @@ export const plantSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     // Use the PayloadAction type to declare the contents of `action.payload`
-    setSelectedPlant: (state, action: PayloadAction<IPlant>) => {
+    setSelectedPlant: (state, action: PayloadAction<IPlant | null>) => {
       state.selected = action.payload;
     },
   },

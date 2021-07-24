@@ -1,19 +1,32 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 
 import ReactMapboxGl, { Popup, Marker } from 'react-mapbox-gl';
 import { Point } from 'mapbox-gl';
 
-import { PLANT_FUEL_TYPE } from '../../model/plant';
+import { IPlant, PLANT_FUEL_TYPE } from '../../model/plant';
 import { config } from '../../app/config';
 import classNames from 'classnames';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { FaSun, FaWater, FaWind, FaLeaf, FaRecycle, FaSubscript, FaVial } from 'react-icons/fa';
+import { FaSun, FaWind } from 'react-icons/fa';
 import styles from './location.module.css';
 import { getCurrentPlants } from '../api/plants';
 
-const LocationPage: NextPage = ({ token, plots }: any) => {
+import { useAppDispatch } from '../../app/hooks';
+import { setSelectedPlant } from '../../features/plant/plantSlice';
+
+interface ILocationParams {
+  token: string;
+  plants: IPlant[];
+}
+
+const LocationPage: NextPage<ILocationParams> = ({ token, plants }) => {
+  const dispatch = useAppDispatch();
+
+  const router = useRouter();
+
   const defaultProps: any = {
     center: [100.5951717, 14.9965211],
     zoom: [8],
@@ -24,12 +37,18 @@ const LocationPage: NextPage = ({ token, plots }: any) => {
   let popupLocation = [0, 0];
   let popupVisible = false;
 
-  const onMarkerClick: any = (event: any, location: any) => {
-    console.log('open popup');
-    // setPopupLocation(location);
+  const onMarkerClick: any = (event: any, plant: IPlant, coordinates: any) => {
+    event.preventDefault();
+    console.log('open popup at ', coordinates);
+    // setPopupLocation(coordinates);
     // setPopupVisible(true);
-    popupLocation = location;
+    popupLocation = coordinates;
     popupVisible = true;
+
+    dispatch(setSelectedPlant(plant));
+
+    console.log('redirect: ', plant.ppInitial);
+    router.push(`/dashboard/${plant.ppInitial}`);
   };
 
   const onMapClick: any = (map: any, event: any) => {
@@ -72,18 +91,27 @@ const LocationPage: NextPage = ({ token, plots }: any) => {
               </div>
             </Popup>
           </div>
-          {plots.map((plot: number[], idx: number) => {
+          {plants.map((plant: IPlant, idx: number) => {
+            const coordinates = [Number(plant.ppLongtitude), Number(plant.ppLatitude)];
+            plant.fuelName === PLANT_FUEL_TYPE.WIND;
             return (
               <Marker
-                coordinates={plot}
+                coordinates={coordinates}
                 anchor="bottom"
-                onClick={(e) => onMarkerClick(e, plot)}
+                onClick={(e) => onMarkerClick(e, plant, coordinates)}
                 tabIndex={idx + 1}
                 key={`marker_${idx}`}>
-                <div className="flex">
-                  <FaWind className={iconStyle} />
-                  <img src={'/marker-editor.svg'} width={50} />
-                </div>
+                {plant.fuelName === PLANT_FUEL_TYPE.WIND ? (
+                  <div className={styles.iconBG}>
+                    <FaWind className={iconStyle} />
+                    <img src={'/marker-editor-wind.svg'} width={50} />
+                  </div>
+                ) : (
+                  <div className={styles.iconBG}>
+                    <FaSun className={iconStyle} />
+                    <img src={'/marker-editor-sun.svg'} width={50} />
+                  </div>
+                )}
               </Marker>
             );
           })}
@@ -95,15 +123,14 @@ const LocationPage: NextPage = ({ token, plots }: any) => {
 
 export async function getStaticProps(context: any) {
   const plants = await getCurrentPlants();
-  const filteredPlots = plants
-    .filter((e) => e.fuelName === PLANT_FUEL_TYPE.WIND || e.fuelName === PLANT_FUEL_TYPE.SOLAR)
-    .map((e) => [Number(e.ppLongtitude), Number(e.ppLatitude)]);
-  const plots = [...(filteredPlots || [])];
+  const filteredPlants = plants.filter(
+    (e) => e.fuelName === PLANT_FUEL_TYPE.WIND || e.fuelName === PLANT_FUEL_TYPE.SOLAR
+  );
 
   return {
     props: {
       token: config.mapbox.apiKey,
-      plots: plots,
+      plants: filteredPlants,
     }, // will be passed to the page component as props
   };
 }

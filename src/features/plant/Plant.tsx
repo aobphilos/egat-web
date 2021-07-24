@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ChangeEventHandler } from 'react';
 import { AutoComplete } from 'primereact/autocomplete';
 
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
@@ -90,11 +90,28 @@ function Plant() {
     event.preventDefault();
     setPlantValue(event.value);
 
-    if (typeof event.value === 'object') {
-      const { ppInitial = 'overall' } = event.value || {};
-      dispatch(setSelectedPlant(ppInitial));
-      console.log('redirect: ', ppInitial);
-      router.push(`/dashboard/${ppInitial}`);
+    console.log('redirect: ', event.value, event.originalEvent.type);
+
+    const { originalEvent } = event;
+    if (originalEvent) {
+      if (originalEvent.type === 'click') {
+        if (typeof event.value === 'object') {
+          dispatch(setSelectedPlant(event.value));
+        } else {
+          dispatch(setSelectedPlant(null));
+        }
+
+        const { ppInitial = 'overall' } = event.value || {};
+        console.log('redirect: ', ppInitial);
+        router.push(`/dashboard/${ppInitial}`);
+      }
+    }
+    if (originalEvent.type === 'blur') {
+      if (event.value === null) {
+        console.log('clear selected plant');
+        dispatch(setSelectedPlant(null));
+        router.push(`/dashboard/overview`);
+      }
     }
   };
 

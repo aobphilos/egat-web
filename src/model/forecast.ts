@@ -1,6 +1,8 @@
 export interface IForecast {
   predicted: number;
   timeStamp: string;
+  diff: number;
+  value: number;
 }
 
 export enum GENERATED_POWER_STATUS {
@@ -8,9 +10,13 @@ export enum GENERATED_POWER_STATUS {
   VALID = 'valid',
   EXPIRED = 'expired',
 }
+
+export interface IGeneratedPowers {
+  sunPowers: Map<string, number>;
+  windPowers: Map<string, number>;
+}
 export interface ITotalGeneratedPowers {
   totalSunPowers: number;
   totalWindPowers: number;
-
   status: GENERATED_POWER_STATUS;
 }

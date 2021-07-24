@@ -1,5 +1,7 @@
 .container {
   padding: 6rem 2rem 2rem 2rem;
+  background: linear-gradient(rgba(116, 246, 255, 0.55), rgba(135, 173, 255, 0.55));
+  min-height: 100vh;
 }
 
 .container .p-col-10.p-fluid > div {
@@ -15,12 +17,12 @@
 
 .icon_wind {
   font-size: 36px;
-  color: deepskyblue;
+  color: #00bfff;
 }
 
 .icon_sun {
   font-size: 36px;
-  color: coral;
+  color: #ff7f50;
 }
 
 .power input {
@@ -28,14 +30,29 @@
   color: #333333;
   border: none;
   font-size: 16px;
+  text-align: right;
+}
+
+.power_small input {
+  background-color: transparent;
+  color: #333333;
+  border: none;
+  font-weight: border;
+  font-size: 14px;
+  text-align: right;
 }
 
 .label_power {
   font-size: 16px;
   line-height: 34px;
+  padding-left: 1rem;
 }
 
 .spinner {
   width: 24px;
   height: 30px;
+}
+
+.parallax_bg {
+  background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5));
 }

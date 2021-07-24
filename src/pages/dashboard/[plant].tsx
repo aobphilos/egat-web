@@ -22,7 +22,7 @@ const initCharData = {
       data: [],
       fill: false,
       borderColor: '#42A5F5',
-      tension: 0.5,
+      tension: 0.4,
     },
   ],
 };
@@ -62,20 +62,20 @@ const DashboardPage: NextPage = () => {
 
   const [dateFrom, setDateFrom] = useState<Date | Date[] | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | Date[] | undefined>(undefined);
+  const [disableDateTo, setDisableDateTo] = useState(true);
+  const [minDate, setMinDate] = useState<Date | undefined>(undefined);
 
   const [dayData, setDayData] = useState<any>(initCharData);
   const [monthData, setMonthData] = useState<any>(initCharData);
   const [yearData, setYearData] = useState<any>(initCharData);
 
+  const router = useRouter();
+  const useQuery = () => router.query;
+  const { plant } = useQuery();
+
   const dispatch = useAppDispatch();
   const forecast = useAppSelector(selectForecast);
   const selectPlant = useAppSelector(selectPlants);
-
-  const router = useRouter();
-
-  const useQuery = () => router.query;
-
-  const { plant } = useQuery();
 
   useEffect(() => {
     if (plant) {
@@ -83,13 +83,13 @@ const DashboardPage: NextPage = () => {
     }
 
     return () => {};
-  }, [activeIndex, dateFrom, dateTo, selectPlant.selected, plant]);
+  }, [activeIndex, dateFrom, dateTo, selectPlant.selected]);
 
   useEffect(() => {
     setChartData();
 
     return () => {};
-  }, [forecast.data]);
+  }, [forecast]);
 
   const setChartData = () => {
     const updatedData = {
@@ -97,9 +97,27 @@ const DashboardPage: NextPage = () => {
       datasets: [
         {
           label: 'Energy Forecast (kW)',
-          data: getPredictions(),
+          data: getForecastData('predicted'),
           fill: false,
           borderColor: '#42A5F5',
+          tension: 0.5,
+        },
+        {
+          label: 'Error',
+          data: getForecastData('diff'),
+          fill: true,
+          borderColor: '#ff5638',
+          borderDash: [5, 5],
+          backgroundColor: 'rgba(255, 86, 56, 0.4)',
+          tension: 0.5,
+        },
+        {
+          label: 'Actual',
+          data: getForecastData('value'),
+          fill: true,
+          borderColor: '#ffd271',
+          borderDash: [5, 5],
+          backgroundColor: 'rgba(255, 192, 56, 0.3)',
           tension: 0.5,
         },
       ],
@@ -128,6 +146,30 @@ const DashboardPage: NextPage = () => {
     dispatch(getForecastAsync(params));
   };
 
+  const changeDateFromHandler = (event: any) => {
+    setDateFrom(event.value);
+    setDisableDateTo(!event.value);
+    setMinDate(event.value);
+
+    if (!event.value) {
+      setDateTo(undefined);
+    } else {
+      const startDate = event.value as Date;
+      const endDate = dateTo as Date;
+
+      if (startDate && endDate) {
+        console.log('Date Diff: ', endDate.getTime() - startDate.getTime());
+        if (endDate.getTime() - startDate.getTime() <= 0) {
+          setDateTo(event.value);
+        }
+      }
+    }
+  };
+
+  const changeDateToHandler = (event: any) => {
+    setDateTo(event.value);
+  };
+
   const getCurrentType = () => {
     let type = 'D';
     if (activeIndex === 1) type = 'M';
@@ -135,8 +177,8 @@ const DashboardPage: NextPage = () => {
     return type;
   };
 
-  const getPredictions = () => {
-    const result = (forecast.data || []).map((f) => f.predicted);
+  const getForecastData = (type: string) => {
+    const result = (forecast.data || []).map((f: any) => f[type]);
     return result;
   };
 
@@ -163,33 +205,39 @@ const DashboardPage: NextPage = () => {
     <div className={styles.container}>
       <div className="p-grid p-justify-center">
         <div className="p-col-12 p-sm-12 p-md-11 p-lg-10">
-          <div className="p-grid p-fluid p-justify-center">
-            <div className="p-col-11 p-sm-6 p-md-6 p-lg-5 p-xl-4">
+          <div className="p-grid p-fluid p-justify-between">
+            <div className="p-col-3 p-sm-2 p-pt-5 p-mx-auto p-mx-sm-0">
+              <h4 style={{ color: '#42a5f5', fontWeight: 'bolder' }}>{plant}</h4>
+            </div>
+            <div className="p-col-11 p-sm-7 p-md-6 p-lg-5 p-xl-4">
               <div className="p-grid ">
-                <div className="p-field p-col-6">
+                <div className="p-col-6">
                   <label htmlFor="dateFrom">วันที่เริ่มต้น</label>
                   <Calendar
                     id="dateFrom"
                     value={dateFrom}
-                    onChange={(e) => setDateFrom(e.value)}
+                    onChange={changeDateFromHandler}
                     showIcon={true}
                     className={styles.calendar}
                     dateFormat="dd/mm/yy"
                   />
                 </div>
-                <div className="p-field p-col-6">
+                <div className="p-col-6">
                   <label htmlFor="dateTo">วันที่สิ้นสุด</label>
                   <Calendar
                     id="dateTo"
                     value={dateTo}
-                    onChange={(e) => setDateTo(e.value)}
+                    onChange={changeDateToHandler}
                     showIcon={true}
                     className={styles.calendar}
                     dateFormat="dd/mm/yy"
+                    minDate={minDate}
+                    disabled={disableDateTo}
                   />
                 </div>
               </div>
             </div>
+            <div className="p-col-1 "></div>
           </div>
         </div>
         <div className="p-col-12 p-sm-12 p-md-11 p-lg-10">
@@ -197,19 +245,19 @@ const DashboardPage: NextPage = () => {
             <TabPanel header="Day">
               <div className="card">
                 <h5>Basic</h5>
-                <Chart type="line" data={dayData} options={initChartOptions} style={{ height: '350px' }} />
+                <Chart type="line" data={dayData} options={initChartOptions} style={{ height: '50vh' }} />
               </div>
             </TabPanel>
             <TabPanel header="Month">
               <div className="card">
                 <h5>Multi Axis</h5>
-                <Chart type="line" data={monthData} options={initChartOptions} style={{ height: '350px' }} />
+                <Chart type="line" data={monthData} options={initChartOptions} style={{ height: '50vh' }} />
               </div>
             </TabPanel>
             <TabPanel header="Year">
               <div className="card">
                 <h5>Multi Axis</h5>
-                <Chart type="line" data={yearData} options={initChartOptions} style={{ height: '350px' }} />
+                <Chart type="line" data={yearData} options={initChartOptions} style={{ height: '50vh' }} />
               </div>
             </TabPanel>
           </TabView>

@@ -1,5 +1,7 @@
 .container {
-  padding: 5.5rem 2rem 2rem 2rem;
+  padding: 5rem 2rem 2rem 2rem;
+  background: linear-gradient(rgba(116, 246, 255, 0.55), rgba(135, 173, 255, 0.55));
+  min-height: 94vh;
 }
 
 .container .tabview-custom i,
@@ -37,4 +39,8 @@
 
 .tabview {
   width: 100%;
+}
+
+.border {
+  color: rgba(255, 86, 56, 0.925);
 }
