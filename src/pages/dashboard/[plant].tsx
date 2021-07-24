@@ -5,14 +5,19 @@ import React, { useState, useEffect } from 'react';
 import { Chart } from 'primereact/chart';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Calendar } from 'primereact/calendar';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
+import classNames from 'classnames';
 import { DateTime } from 'luxon';
 
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectForecast, getForecastAsync } from '../../features/forecast/forecastSlice';
 import { selectPlants } from '../../features/plant/plantSlice';
 
+import { CSVLink } from 'react-csv';
+
 import styles from './dashboard.module.css';
+import forecast from '../api/forecast';
 
 const initCharData = {
   labels: [],
@@ -56,6 +61,13 @@ const initChartOptions = {
     },
   },
 };
+
+const csvHeaders = [
+  { label: 'Predicted', key: 'predicted' },
+  { label: 'Timestamp', key: 'timeStamp' },
+  { label: 'Diff', key: 'diff' },
+  { label: 'Value', key: 'value' },
+];
 
 const DashboardPage: NextPage = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -149,7 +161,7 @@ const DashboardPage: NextPage = () => {
     }
   };
 
-  const changeParamForecast = () => {
+  const getCurrentQueryParams = () => {
     const type = getCurrentType();
 
     const startDate = dateFrom as Date;
@@ -157,8 +169,11 @@ const DashboardPage: NextPage = () => {
 
     const day = startDate ? `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` : '';
     const dayEnd = endDate ? `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}` : '';
-    const params = { type, day, plant, dayEnd };
+    return { type, day, plant, dayEnd };
+  };
 
+  const changeParamForecast = () => {
+    const params = getCurrentQueryParams();
     dispatch(getForecastAsync(params));
   };
 
@@ -194,13 +209,28 @@ const DashboardPage: NextPage = () => {
   };
 
   const getForecastData = (type: string) => {
-    const result = (forecast.data.dataList || []).map((f: any) => f[type]);
-    return result;
+    const result = forecast.data.dataList || [];
+    if (type === 'all') return result;
+    return result.map((f: any) => f[type]);
   };
+
   const getLabelData = (type: string): string => {
     if (type === 'R2') return `R2 (${Number(forecast.data.R2)?.toFixed(3)})`;
     else if (type === 'RMSE') return `RMSE (${Number(forecast.data.RMSE)?.toFixed(3)})`;
     else return '';
+  };
+
+  const getFileName = () => {
+    const params = getCurrentQueryParams();
+    let name = params.plant || 'overall';
+    if (params.type === 'D') name += '-day';
+    if (params.type === 'M') name += '-month';
+    if (params.type === 'Y') name += '-year';
+
+    if (params.day) name += `-${params.day}`;
+    if (params.dayEnd) name += `-${params.dayEnd}`;
+
+    return `${name}.csv`;
   };
 
   const getTimestamps = () => {
@@ -221,6 +251,13 @@ const DashboardPage: NextPage = () => {
     });
     return result;
   };
+
+  const canExportData = () => {
+    return !isLoading() && forecast.data.dataList.length > 0;
+  };
+  const isLoading = () => forecast.status === 'loading';
+
+  const exportStyle = classNames(styles.button_export, { 'p-button': true, 'p-component': true, 'p-mx-auto': true });
 
   return (
     <div className={styles.container}>
@@ -265,7 +302,37 @@ const DashboardPage: NextPage = () => {
             <div className="p-col-2 p-d-sm-none p-d-xl-inline "></div>
           </div>
         </div>
+
         <div className="p-col-12 p-sm-12 p-md-11 p-lg-10">
+          <div
+            hidden={!isLoading()}
+            className={styles.divLoading}
+            style={{
+              position: 'relative',
+            }}>
+            <ProgressSpinner
+              style={{ width: '60px', height: '60px' }}
+              strokeWidth="5"
+              fill="transparent"
+              animationDuration="1.5s"
+            />
+          </div>
+          <div
+            hidden={!canExportData()}
+            className={styles.divExport}
+            style={{
+              position: 'relative',
+            }}>
+            <CSVLink
+              data={getForecastData('all')}
+              className={exportStyle}
+              headers={csvHeaders}
+              filename={getFileName()}
+              target="_blank">
+              <i className="pi pi-file-excel p-px-0 p-px-md-2"></i>
+              <span>Export</span>
+            </CSVLink>
+          </div>
           <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
             <TabPanel header="Day">
               <div className="card">
