@@ -91,6 +91,10 @@ const DashboardPage: NextPage = () => {
     return () => {};
   }, [forecast]);
 
+  const usePlantName = () => {
+    return selectPlant.selected?.ppThaiName;
+  };
+
   const setChartData = () => {
     const updatedData = {
       labels: getTimestamps(),
@@ -119,6 +123,18 @@ const DashboardPage: NextPage = () => {
           borderDash: [5, 5],
           backgroundColor: 'rgba(255, 192, 56, 0.3)',
           tension: 0.5,
+        },
+        {
+          label: getLabelData('R2'),
+          data: [],
+          borderColor: '#ffffff',
+          backgroundColor: '#ffffff',
+        },
+        {
+          label: getLabelData('RMSE'),
+          data: [],
+          borderColor: '#ffffff',
+          backgroundColor: '#ffffff',
         },
       ],
     };
@@ -178,14 +194,19 @@ const DashboardPage: NextPage = () => {
   };
 
   const getForecastData = (type: string) => {
-    const result = (forecast.data || []).map((f: any) => f[type]);
+    const result = (forecast.data.dataList || []).map((f: any) => f[type]);
     return result;
+  };
+  const getLabelData = (type: string): string => {
+    if (type === 'R2') return `R2 (${Number(forecast.data.R2)?.toFixed(3)})`;
+    else if (type === 'RMSE') return `RMSE (${Number(forecast.data.RMSE)?.toFixed(3)})`;
+    else return '';
   };
 
   const getTimestamps = () => {
     const type = getCurrentType();
 
-    const result = (forecast.data || []).map((f) => {
+    const result = (forecast.data.dataList || []).map((f) => {
       const date = DateTime.fromISO(f.timeStamp, { zone: 'Asian/Bangkok', setZone: true });
       if (date.isValid) {
         if (type === 'D') {
@@ -206,38 +227,42 @@ const DashboardPage: NextPage = () => {
       <div className="p-grid p-justify-center">
         <div className="p-col-12 p-sm-12 p-md-11 p-lg-10">
           <div className="p-grid p-fluid p-justify-between">
-            <div className="p-col-3 p-sm-2 p-pt-5 p-mx-auto p-mx-sm-0">
-              <h4 style={{ color: '#42a5f5', fontWeight: 'bolder' }}>{plant}</h4>
+            <div className="p-col-12 p-sm-12 p-md-7 p-xl-5 p-pt-5 p-text-center p-text-md-left">
+              <h4 style={{ color: '#42a5f5', fontWeight: 'bolder' }}>{usePlantName()}</h4>
             </div>
-            <div className="p-col-11 p-sm-7 p-md-6 p-lg-5 p-xl-4">
-              <div className="p-grid ">
-                <div className="p-col-6">
-                  <label htmlFor="dateFrom">วันที่เริ่มต้น</label>
-                  <Calendar
-                    id="dateFrom"
-                    value={dateFrom}
-                    onChange={changeDateFromHandler}
-                    showIcon={true}
-                    className={styles.calendar}
-                    dateFormat="dd/mm/yy"
-                  />
+            <div className="p-col-12 p-sm-12 p-md-5 p-xl-5">
+              <div className="p-grid">
+                <div className="p-col-6 p-d-flex p-jc-center">
+                  <div>
+                    <label htmlFor="dateFrom">วันที่เริ่มต้น</label>
+                    <Calendar
+                      id="dateFrom"
+                      value={dateFrom}
+                      onChange={changeDateFromHandler}
+                      showIcon={true}
+                      className={styles.calendar}
+                      dateFormat="dd/mm/yy"
+                    />
+                  </div>
                 </div>
-                <div className="p-col-6">
-                  <label htmlFor="dateTo">วันที่สิ้นสุด</label>
-                  <Calendar
-                    id="dateTo"
-                    value={dateTo}
-                    onChange={changeDateToHandler}
-                    showIcon={true}
-                    className={styles.calendar}
-                    dateFormat="dd/mm/yy"
-                    minDate={minDate}
-                    disabled={disableDateTo}
-                  />
+                <div className="p-col-6 p-d-flex p-jc-center">
+                  <div>
+                    <label htmlFor="dateTo">วันที่สิ้นสุด</label>
+                    <Calendar
+                      id="dateTo"
+                      value={dateTo}
+                      onChange={changeDateToHandler}
+                      showIcon={true}
+                      className={styles.calendar}
+                      dateFormat="dd/mm/yy"
+                      minDate={minDate}
+                      disabled={disableDateTo}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="p-col-1 "></div>
+            <div className="p-col-2 p-d-sm-none p-d-xl-inline "></div>
           </div>
         </div>
         <div className="p-col-12 p-sm-12 p-md-11 p-lg-10">

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { NextApiHandler } from 'next';
 import { config } from '../../../app/config';
-import { IForecast } from '../../../model/forecast';
+import { IForecast, DefaultForecast } from '../../../model/forecast';
 
 interface IForecastParams {
   type: 'D' | 'M' | 'Y';
@@ -10,7 +10,7 @@ interface IForecastParams {
   dayEnd: string;
 }
 
-export async function fetchData({ type, day, plant, dayEnd }: IForecastParams): Promise<IForecast[]> {
+export async function fetchData({ type, day, plant, dayEnd }: IForecastParams): Promise<IForecast> {
   const { egat } = config;
   const apiPath = `${egat.forecast.url}/forecast`;
   const params = {
@@ -20,8 +20,6 @@ export async function fetchData({ type, day, plant, dayEnd }: IForecastParams): 
     f_day_end: dayEnd,
   };
 
-  // console.log('[server-call][forecast] - API ', params);
-
   const response = await axios(apiPath, {
     method: 'GET',
     headers: {
@@ -30,11 +28,15 @@ export async function fetchData({ type, day, plant, dayEnd }: IForecastParams): 
     params,
   }).catch((err) => {
     console.log('[server-call][forecast] - ERROR ', err.message);
-    return { data: [] };
+    return { data: DefaultForecast };
   });
-  const data: IForecast[] = (response.data && response.data.dataList) || [];
 
-  // console.log('[server-call][forecast] - API - completed', data);
+  if (response.data.status !== 200) {
+    return DefaultForecast;
+  }
+
+  const data: IForecast = response.data || DefaultForecast;
+
   return data;
 }
 

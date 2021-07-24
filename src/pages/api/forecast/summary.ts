@@ -33,10 +33,11 @@ export async function summaryPowers(sunList: string[] = [], windList: string[] =
     const getPower = async (plant: string, blankList: string[], generateItem: Map<string, number>) => {
       const params: any = { ...options, plant };
       const data = await fetchData(params);
-      if (data.length === 0) {
+
+      if (data.dataList.length === 0) {
         blankList.push(plant);
       }
-      const powers = data.map((e) => e.predicted).reduce((k, v) => k + v, 0);
+      const powers = data.dataList.map((e) => e.predicted).reduce((k, v) => k + v, 0);
       generateItem.set(plant, powers);
       return powers;
     };
