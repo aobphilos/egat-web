@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/aobphilos/egat-web/compare/v1.0.1...v1.1.0) (2021-07-25)
+
+
+### Features
+
+* 🎸 changed export label in CSV file ([4a44720](https://github.com/aobphilos/egat-web/commit/4a447209463fd1341daeed1581c79393f2945de8))
+* 🎸 Display 2 fields for 'R2' and 'RMSE' in chart ([cf96048](https://github.com/aobphilos/egat-web/commit/cf960487b7b325037838c34a3f3d3968d45afda9))
+* 🎸 enabled export to CSV ([371a6af](https://github.com/aobphilos/egat-web/commit/371a6af5ddb54a88b580c79f0e241d79148c21ea))
+
 ### [1.0.1](https://github.com/aobphilos/egat-web/compare/v1.0.0...v1.0.1) (2021-07-24)
 
 

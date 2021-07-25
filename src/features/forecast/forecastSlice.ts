@@ -1,16 +1,16 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import type { AppState } from '../../app/store';
-import { IForecast } from '../../model/forecast';
+import { IForecast, DefaultForecast } from '../../model/forecast';
 import { fetchData } from './forecastAPI';
 
 export interface IForecastState {
-  data: IForecast[];
+  data: IForecast;
   status: 'idle' | 'loading' | 'failed';
 }
 
 const initialState: IForecastState = {
-  data: [],
+  data: DefaultForecast,
   status: 'idle',
 };
 

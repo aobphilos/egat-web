@@ -1,6 +1,6 @@
-import { IForecast, ITotalGeneratedPowers } from '../../model/forecast';
+import { IForecast, ITotalGeneratedPowers, DefaultForecast } from '../../model/forecast';
 
-export async function fetchData({ type, day, plant, dayEnd }: any): Promise<{ data: IForecast[] }> {
+export async function fetchData({ type, day, plant, dayEnd }: any): Promise<{ data: IForecast }> {
   const apiPath = `/api/forecast`;
   let query = '?time=' + Date.now();
 
@@ -20,10 +20,10 @@ export async function fetchData({ type, day, plant, dayEnd }: any): Promise<{ da
     .then((response) => response.json())
     .catch((error) => {
       console.log('Fetch Forecast Error: ', error.message);
-      return [];
+      return DefaultForecast;
     });
 
-  const data: IForecast[] = result || [];
+  const data: IForecast = result || DefaultForecast;
 
   return { data };
 }

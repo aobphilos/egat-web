@@ -5,14 +5,19 @@ import React, { useState, useEffect } from 'react';
 import { Chart } from 'primereact/chart';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Calendar } from 'primereact/calendar';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
+import classNames from 'classnames';
 import { DateTime } from 'luxon';
 
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { selectForecast, getForecastAsync } from '../../features/forecast/forecastSlice';
 import { selectPlants } from '../../features/plant/plantSlice';
 
+import { CSVLink } from 'react-csv';
+
 import styles from './dashboard.module.css';
+import forecast from '../api/forecast';
 
 const initCharData = {
   labels: [],
@@ -57,6 +62,13 @@ const initChartOptions = {
   },
 };
 
+const csvHeaders = [
+  { label: 'Timestamp', key: 'timeStamp' },
+  { label: 'Forecast Value', key: 'predicted' },
+  { label: 'Actual Value', key: 'value' },
+  { label: 'Error', key: 'diff' },
+];
+
 const DashboardPage: NextPage = () => {
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -91,6 +103,10 @@ const DashboardPage: NextPage = () => {
     return () => {};
   }, [forecast]);
 
+  const usePlantName = () => {
+    return selectPlant.selected?.ppThaiName;
+  };
+
   const setChartData = () => {
     const updatedData = {
       labels: getTimestamps(),
@@ -120,6 +136,18 @@ const DashboardPage: NextPage = () => {
           backgroundColor: 'rgba(255, 192, 56, 0.3)',
           tension: 0.5,
         },
+        {
+          label: getLabelData('R2'),
+          data: [],
+          borderColor: '#ffffff',
+          backgroundColor: '#ffffff',
+        },
+        {
+          label: getLabelData('RMSE'),
+          data: [],
+          borderColor: '#ffffff',
+          backgroundColor: '#ffffff',
+        },
       ],
     };
 
@@ -133,7 +161,7 @@ const DashboardPage: NextPage = () => {
     }
   };
 
-  const changeParamForecast = () => {
+  const getCurrentQueryParams = () => {
     const type = getCurrentType();
 
     const startDate = dateFrom as Date;
@@ -141,8 +169,11 @@ const DashboardPage: NextPage = () => {
 
     const day = startDate ? `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` : '';
     const dayEnd = endDate ? `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}` : '';
-    const params = { type, day, plant, dayEnd };
+    return { type, day, plant, dayEnd };
+  };
 
+  const changeParamForecast = () => {
+    const params = getCurrentQueryParams();
     dispatch(getForecastAsync(params));
   };
 
@@ -178,14 +209,34 @@ const DashboardPage: NextPage = () => {
   };
 
   const getForecastData = (type: string) => {
-    const result = (forecast.data || []).map((f: any) => f[type]);
-    return result;
+    const result = forecast.data.dataList || [];
+    if (type === 'all') return result;
+    return result.map((f: any) => f[type]);
+  };
+
+  const getLabelData = (type: string): string => {
+    if (type === 'R2') return `R2 (${Number(forecast.data.R2)?.toFixed(3)})`;
+    else if (type === 'RMSE') return `RMSE (${Number(forecast.data.RMSE)?.toFixed(3)})`;
+    else return '';
+  };
+
+  const getFileName = () => {
+    const params = getCurrentQueryParams();
+    let name = params.plant || 'overall';
+    if (params.type === 'D') name += '-day';
+    if (params.type === 'M') name += '-month';
+    if (params.type === 'Y') name += '-year';
+
+    if (params.day) name += `-${params.day}`;
+    if (params.dayEnd) name += `-${params.dayEnd}`;
+
+    return `${name}.csv`;
   };
 
   const getTimestamps = () => {
     const type = getCurrentType();
 
-    const result = (forecast.data || []).map((f) => {
+    const result = (forecast.data.dataList || []).map((f) => {
       const date = DateTime.fromISO(f.timeStamp, { zone: 'Asian/Bangkok', setZone: true });
       if (date.isValid) {
         if (type === 'D') {
@@ -201,46 +252,87 @@ const DashboardPage: NextPage = () => {
     return result;
   };
 
+  const canExportData = () => {
+    return !isLoading() && forecast.data.dataList.length > 0;
+  };
+  const isLoading = () => forecast.status === 'loading';
+
+  const exportStyle = classNames(styles.button_export, { 'p-button': true, 'p-component': true, 'p-mx-auto': true });
+
   return (
     <div className={styles.container}>
       <div className="p-grid p-justify-center">
         <div className="p-col-12 p-sm-12 p-md-11 p-lg-10">
           <div className="p-grid p-fluid p-justify-between">
-            <div className="p-col-3 p-sm-2 p-pt-5 p-mx-auto p-mx-sm-0">
-              <h4 style={{ color: '#42a5f5', fontWeight: 'bolder' }}>{plant}</h4>
+            <div className="p-col-12 p-sm-12 p-md-7 p-xl-5 p-pt-5 p-text-center p-text-md-left">
+              <h4 style={{ color: '#42a5f5', fontWeight: 'bolder' }}>{usePlantName()}</h4>
             </div>
-            <div className="p-col-11 p-sm-7 p-md-6 p-lg-5 p-xl-4">
-              <div className="p-grid ">
-                <div className="p-col-6">
-                  <label htmlFor="dateFrom">วันที่เริ่มต้น</label>
-                  <Calendar
-                    id="dateFrom"
-                    value={dateFrom}
-                    onChange={changeDateFromHandler}
-                    showIcon={true}
-                    className={styles.calendar}
-                    dateFormat="dd/mm/yy"
-                  />
+            <div className="p-col-12 p-sm-12 p-md-5 p-xl-5">
+              <div className="p-grid">
+                <div className="p-col-6 p-d-flex p-jc-center">
+                  <div>
+                    <label htmlFor="dateFrom">วันที่เริ่มต้น</label>
+                    <Calendar
+                      id="dateFrom"
+                      value={dateFrom}
+                      onChange={changeDateFromHandler}
+                      showIcon={true}
+                      className={styles.calendar}
+                      dateFormat="dd/mm/yy"
+                    />
+                  </div>
                 </div>
-                <div className="p-col-6">
-                  <label htmlFor="dateTo">วันที่สิ้นสุด</label>
-                  <Calendar
-                    id="dateTo"
-                    value={dateTo}
-                    onChange={changeDateToHandler}
-                    showIcon={true}
-                    className={styles.calendar}
-                    dateFormat="dd/mm/yy"
-                    minDate={minDate}
-                    disabled={disableDateTo}
-                  />
+                <div className="p-col-6 p-d-flex p-jc-center">
+                  <div>
+                    <label htmlFor="dateTo">วันที่สิ้นสุด</label>
+                    <Calendar
+                      id="dateTo"
+                      value={dateTo}
+                      onChange={changeDateToHandler}
+                      showIcon={true}
+                      className={styles.calendar}
+                      dateFormat="dd/mm/yy"
+                      minDate={minDate}
+                      disabled={disableDateTo}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="p-col-1 "></div>
+            <div className="p-col-2 p-d-sm-none p-d-xl-inline "></div>
           </div>
         </div>
+
         <div className="p-col-12 p-sm-12 p-md-11 p-lg-10">
+          <div
+            hidden={!isLoading()}
+            className={styles.divLoading}
+            style={{
+              position: 'relative',
+            }}>
+            <ProgressSpinner
+              style={{ width: '60px', height: '60px' }}
+              strokeWidth="5"
+              fill="transparent"
+              animationDuration="1.5s"
+            />
+          </div>
+          <div
+            hidden={!canExportData()}
+            className={styles.divExport}
+            style={{
+              position: 'relative',
+            }}>
+            <CSVLink
+              data={getForecastData('all')}
+              className={exportStyle}
+              headers={csvHeaders}
+              filename={getFileName()}
+              target="_blank">
+              <i className="pi pi-file-excel p-px-0 p-px-md-2"></i>
+              <span>Export</span>
+            </CSVLink>
+          </div>
           <TabView activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
             <TabPanel header="Day">
               <div className="card">
