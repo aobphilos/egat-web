@@ -63,10 +63,10 @@ const initChartOptions = {
 };
 
 const csvHeaders = [
-  { label: 'Predicted', key: 'predicted' },
   { label: 'Timestamp', key: 'timeStamp' },
-  { label: 'Diff', key: 'diff' },
-  { label: 'Value', key: 'value' },
+  { label: 'Forecast Value', key: 'predicted' },
+  { label: 'Actual Value', key: 'value' },
+  { label: 'Error', key: 'diff' },
 ];
 
 const DashboardPage: NextPage = () => {
